@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.imageio.ImageIO;
 
 public class PackagePanel extends JPanel {
     
@@ -25,6 +26,7 @@ public class PackagePanel extends JPanel {
 
     private String customName = null;
     private String customImagePath = null;
+    private String tempIconPath = null; // Для временных иконок URL
     
     public PackagePanel(int posX, int posY, int width, int height, String folderPath, String pathType,String Name, String ImgPath) {
         setBounds(posX, posY, width, height);
@@ -117,7 +119,6 @@ public class PackagePanel extends JPanel {
         bottomPanel.add(nameLabel);
         add(bottomPanel, BorderLayout.SOUTH);
         
-        // Добавляем отступы
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
@@ -128,11 +129,12 @@ public class PackagePanel extends JPanel {
                 ImageIcon systemIcon = null;
                 
                 if ("url".equalsIgnoreCase(pathType)) {
-                    // Для URL пробуем получить системную иконку, если нет - показываем серый квадрат с названием
                     systemIcon = getWebLinkIcon();
                     if (systemIcon == null) {
-                        // Создаем серый квадрат с текстом
                         systemIcon = createGraySquareWithText();
+                    } else {
+                        // Сохраняем системную иконку URL как кастомное изображение
+                        saveSystemIconAsCustomImage(systemIcon);
                     }
                 } else if (file.exists()) {
                     if (file.isDirectory()) {
@@ -164,6 +166,45 @@ public class PackagePanel extends JPanel {
         }
     }
     
+    private void saveSystemIconAsCustomImage(ImageIcon systemIcon) {
+        try {
+            // Создаем временную директорию для иконок если её нет
+            File iconDir = new File(System.getProperty("user.home"), ".package_panel_icons");
+            if (!iconDir.exists()) {
+                iconDir.mkdirs();
+            }
+            
+            // Создаем уникальное имя файла на основе URL
+            String urlHash = String.valueOf(Math.abs(path.hashCode()));
+            String iconFileName = "url_icon_" + urlHash + ".png";
+            File iconFile = new File(iconDir, iconFileName);
+            
+            // Сохраняем иконку только если файл не существует или URL изменился
+            if (!iconFile.exists() || tempIconPath == null || !tempIconPath.equals(iconFile.getAbsolutePath())) {
+                // Конвертируем ImageIcon в BufferedImage
+                BufferedImage bufferedImage = new BufferedImage(
+                    systemIcon.getIconWidth(), 
+                    systemIcon.getIconHeight(), 
+                    BufferedImage.TYPE_INT_ARGB
+                );
+                Graphics g = bufferedImage.createGraphics();
+                systemIcon.paintIcon(null, g, 0, 0);
+                g.dispose();
+                
+                // Сохраняем как PNG
+                ImageIO.write(bufferedImage, "png", iconFile);
+                
+                // Устанавливаем путь к сохраненной иконке как customImagePath
+                this.customImagePath = iconFile.getAbsolutePath();
+                this.tempIconPath = this.customImagePath;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Если не удалось сохранить, оставляем customImagePath как null
+            this.customImagePath = null;
+        }
+    }
+    
     private ImageIcon createGraySquareWithText() {
         int size = imageLabel.getPreferredSize().width;
         if (size <= 0) size = 64;
@@ -181,20 +222,17 @@ public class PackagePanel extends JPanel {
         g2d.setColor(new Color(100, 100, 100));
         g2d.drawRect(0, 0, size - 1, size - 1);
         
-        // Получаем текст для отображения
         String displayText = "";
         if (pathType != null && "url".equalsIgnoreCase(pathType)) {
-            // Для URL берем домен или имя
             String url = path;
             if (url != null) {
                 if (url.startsWith("http://")) url = url.substring(7);
                 if (url.startsWith("https://")) url = url.substring(8);
                 if (url.endsWith("/")) url = url.substring(0, url.length() - 1);
-                // Берем первые 2-3 символа или первый сегмент
+
                 if (url.length() > 0) {
                     String[] parts = url.split("\\.");
                     if (parts.length >= 2) {
-                        // Берем имя сайта без www
                         String siteName = parts[parts.length - 2];
                         if (siteName.startsWith("www")) {
                             siteName = siteName.substring(3);
@@ -223,7 +261,6 @@ public class PackagePanel extends JPanel {
             displayText = "?";
         }
         
-        // Рисуем текст по центру
         int fontSize = Math.max(12, size / 3);
         Font font = new Font("Arial", Font.BOLD, fontSize);
         g2d.setFont(font);
@@ -445,5 +482,11 @@ public class PackagePanel extends JPanel {
     public String getPath() {return path;}
     public String getPathType() {return pathType;}
     public String getCustomName() {return customName;}
-    public String getCustomImagePath() {return customImagePath;}
+    public String getCustomImagePath() {
+        // Если есть сохраненная иконка URL, возвращаем её путь
+        if (tempIconPath != null && new File(tempIconPath).exists()) {
+            return tempIconPath;
+        }
+        return customImagePath;
+    }
 }

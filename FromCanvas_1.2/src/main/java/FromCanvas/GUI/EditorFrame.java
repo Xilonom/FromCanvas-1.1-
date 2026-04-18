@@ -226,7 +226,8 @@ public class EditorFrame extends JFrame implements ActionListener {
             for (Component comp : contentPane.getComponents()) {
                 if (comp instanceof DraggableTextPanel || 
                     comp instanceof DraggableImagePanel || 
-                    comp instanceof Arrow) {
+                    comp instanceof Arrow ||
+                    comp instanceof PackagePanel) {
                     addContextMenuToComponent(comp);
                 }
             }

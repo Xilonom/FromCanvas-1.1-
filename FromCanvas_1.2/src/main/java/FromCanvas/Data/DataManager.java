@@ -58,16 +58,16 @@ public class DataManager {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             String format = imagePath.substring(imagePath.lastIndexOf('.') + 1).toLowerCase();
             
-            // Поддерживаемые форматы
+
             if (!format.equals("png") && !format.equals("jpg") && !format.equals("jpeg") && !format.equals("gif")) {
-                format = "png"; // формат по умолчанию
+                format = "png"; 
             }
             
             ImageIO.write(image, format, baos);
             byte[] imageBytes = baos.toByteArray();
             String base64String = Base64.getEncoder().encodeToString(imageBytes);
             
-            // Добавляем информацию о формате
+
             return "data:image/" + format + ";base64," + base64String;
             
         } catch (IOException e) {
@@ -76,14 +76,14 @@ public class DataManager {
         }
     }
     
-    // Метод для сохранения Base64 строки во временный файл (для отображения)
+
     private static String base64ToTempImage(String base64String) {
         if (base64String == null || base64String.isEmpty()) {
             return null;
         }
         
         try {
-            // Извлекаем формат и данные
+
             String[] parts = base64String.split(",");
             if (parts.length != 2) {
                 return null;
@@ -92,7 +92,7 @@ public class DataManager {
             String metadata = parts[0];
             String base64Data = parts[1];
             
-            // Определяем формат
+
             String format = "png";
             if (metadata.contains("image/jpeg") || metadata.contains("image/jpg")) {
                 format = "jpg";
@@ -100,14 +100,14 @@ public class DataManager {
                 format = "gif";
             }
             
-            // Декодируем Base64
+
             byte[] imageBytes = Base64.getDecoder().decode(base64Data);
             
-            // Создаем временный файл
+
             File tempFile = File.createTempFile("project_image_", "." + format);
             tempFile.deleteOnExit();
             
-            // Сохраняем изображение
+
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
             ImageIO.write(image, format, tempFile);
             
@@ -231,7 +231,7 @@ public class DataManager {
                 item.put("path", obj.getPath());
                 item.put("Custom_name", obj.getCustomName());
                 
-                // Конвертируем изображение PackagePanel в Base64
+                
                 String customImgPath = obj.getCustomImagePath();
                 if (customImgPath != null && !customImgPath.isEmpty()) {
                     String base64Image = imageToBase64(customImgPath);
@@ -398,12 +398,11 @@ public class DataManager {
                     pnlList.add(panel);
                 }
                 else if ("ImgPanel".equals(Type)) {
-                    // Получаем Base64 данные изображения
+
                     String imageData = (String) jsonObj.get("image_data");
                     String tempImagePath = null;
                     
                     if (imageData != null && !imageData.isEmpty()) {
-                        // Конвертируем Base64 обратно во временный файл
                         tempImagePath = base64ToTempImage(imageData);
                     }
                     
@@ -414,11 +413,10 @@ public class DataManager {
                     long height = ((Number) jsonObj.get("pnl_height")).longValue(); 
                     long width = ((Number) jsonObj.get("pnl_Width")).longValue(); 
 
-                    // Используем временный файл или пустую строку, если изображение не загрузилось
                     String imagePath = tempImagePath != null ? tempImagePath : "";
                     DraggableImagePanel panel = new DraggableImagePanel((int) posX, (int) posY, imagePath, color1, color2, (int) width, (int) height);
                     
-                    // Сохраняем Base64 данные для возможного последующего использования
+                   
                     panel.setStoredImageData(imageData);
                     
                     contentPane.add(panel);
@@ -447,7 +445,6 @@ public class DataManager {
                     String pathType = ((String) jsonObj.get("path_type"));
                     String CustomName = ((String) jsonObj.get("Custom_name"));
                     
-                    // Получаем Base64 данные изображения для PackagePanel
                     String imageData = (String) jsonObj.get("Custom_ImgPath_data");
                     String tempImagePath = null;
                     
