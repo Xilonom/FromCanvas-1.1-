@@ -1,2 +1,2 @@
 # FromCanvas-1.1-
-idk 
+Alpha build of mind map application on java 
