@@ -182,6 +182,7 @@ public class DataManager {
                 item.put("pnl_Width", obj.getPanelWidth());
                 item.put("color1", String.valueOf(obj.getColor1().getRGB()));
                 item.put("color2", String.valueOf(obj.getColor2().getRGB()));
+                item.put("text_align",obj.getAlignment());
                 objectListJson.add(item);
             }
 
@@ -284,6 +285,7 @@ public class DataManager {
                 item.put("pnl_Width", obj.getPanelWidth());
                 item.put("color1", String.valueOf(obj.getColor1().getRGB()));
                 item.put("color2", String.valueOf(obj.getColor2().getRGB()));
+                item.put("text_align",obj.getAlignment());
                 objectListJson.add(item);
             }
 
@@ -376,7 +378,6 @@ public class DataManager {
             for (Object o : array) {
                 JSONObject jsonObj = (JSONObject) o;
                 String Type = ((String) jsonObj.get("type"));
-                System.out.println(Type);
 
                 if ("TxtPanel".equals(Type)) {
                     String text = ((String) jsonObj.get("text"));
@@ -385,13 +386,14 @@ public class DataManager {
                     Color color1 = new Color(Integer.parseInt(((String) jsonObj.get("color1"))), true);
                     Color color2 = new Color(Integer.parseInt(((String) jsonObj.get("color2"))), true);
                     long height = ((Number) jsonObj.get("pnl_height")).longValue(); 
-                    long width = ((Number) jsonObj.get("pnl_Width")).longValue(); 
+                    long width = ((Number) jsonObj.get("pnl_Width")).longValue();
+                    long txt_align = ((Number) jsonObj.get("text_align")).longValue();
 
                     boolean isAutoPosition = (int) posX == AUTO_POSITION_SENTINEL || (int) posY == AUTO_POSITION_SENTINEL;
                     DraggableTextPanel panel = new DraggableTextPanel(
                         isAutoPosition ? AUTO_POSITION_SENTINEL : (int) posX,
                         isAutoPosition ? AUTO_POSITION_SENTINEL : (int) posY,
-                        text, color1, color2
+                        text, color1, color2, (int)txt_align
                     );
                     panel.setPanelSize((int) width, (int) height);
                     contentPane.add(panel);

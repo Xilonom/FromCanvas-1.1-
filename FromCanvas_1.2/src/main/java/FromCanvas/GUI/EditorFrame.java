@@ -242,7 +242,7 @@ public class EditorFrame extends JFrame implements ActionListener {
                 TEMPLATE_AUTO_POSITION_SENTINEL, 
                 "", 
                 new Color(24, 24, 26), 
-                new Color(24, 24, 26)
+                new Color(24, 24, 26),2
             );
             addAndRegisterComponent(panel, panels);
         } catch (Exception ex) {
@@ -419,7 +419,7 @@ public class EditorFrame extends JFrame implements ActionListener {
             DraggableTextPanel panel = new DraggableTextPanel(
                 TEMPLATE_AUTO_POSITION_SENTINEL, 
                 TEMPLATE_AUTO_POSITION_SENTINEL, 
-                text, color1, color2
+                text, color1, color2, 2
             );
             contentPane.add(panel);
             panels.add(panel);
